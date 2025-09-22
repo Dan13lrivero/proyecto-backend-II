@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { Student } from '../config/models/student.model.js';
 import mongoose from "mongoose";
+import { requireJwtCookie, requireRole } from "../middleware/auth.middlewar.js";
+
 
 const router = Router();
+
+router.use(requireJwtCookie);
 
 router.get('/', async (req, res) => {
     try {
@@ -13,7 +17,7 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.post('/', async (req, res) => {
+router.post('/', requireRole('admin'), async (req, res) => {
     try {
         let { name, email, age } = req.body;
         if (!name || !email || !age) {
@@ -38,7 +42,7 @@ router.post('/', async (req, res) => {
 })
 
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireRole('admin', 'user'), async (req, res) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: "Formato de ID invalido" });
@@ -51,7 +55,7 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireRole('admin'), async (req, res) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: "Formato de ID invalido" });
@@ -68,7 +72,7 @@ router.put('/:id', async (req, res) => {
 })
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireRole('admin'), async (req, res) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: "Formato de ID invalido" });
