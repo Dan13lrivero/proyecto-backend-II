@@ -1,8 +1,7 @@
 import passport from "passport";
 import { Strategy as JwtStrategy } from "passport-jwt";
-import dotenv from 'dotenv';
+import environment from '../env.config.js';
 import { User } from "../models/user.model.js";
-dotenv.config();
 
 function cookieExtractor(req){
     if(req && req.cookies && req.cookies.access_token){
@@ -15,7 +14,7 @@ export function initPassport() {
     passport.use('jwt-cookie', new JwtStrategy(
         {
             jwtFromRequest: cookieExtractor,
-            secretOrKey: process.env.JWT_SECRET
+            secretOrKey: environment.JWT_SECRET
         },
         async (payload, done) => {
             try{
