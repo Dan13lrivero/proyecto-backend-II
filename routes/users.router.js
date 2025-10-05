@@ -26,7 +26,7 @@ router.get("/:id", requireRole("admin", "user"), async (req, res) => {
     const user = await User.findById(id).select("-password").lean();
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
-    if (req.user.role !== "admin" && req.user._id !== id)
+    if (req.user.role !== "admin" && String(req.user._id) !== String(id))
       return res.status(403).json({ error: "Acceso prohibido" });
 
     res.json({ user });
@@ -60,7 +60,7 @@ router.put("/:id", requireRole("admin", "user"), async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id))
       return res.status(400).json({ error: "ID inválido" });
 
-    if (req.user.role !== "admin" && req.user._id !== id)
+    if (req.user.role !== "admin" && String(req.user._id) !== String(id))
       return res.status(403).json({ error: "Acceso prohibido" });
 
     const updateData = { ...req.body };
