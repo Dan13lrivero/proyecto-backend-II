@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { User } from "../config/models/user.model.js";
+import { User } from "../models/user.model.js";
 import { requireJwtCookie } from "../middleware/auth.middlewar.js";
 import environment from "../config/env.config.js";
 import bcrypt from "bcrypt";
