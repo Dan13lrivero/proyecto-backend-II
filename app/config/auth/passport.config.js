@@ -3,7 +3,7 @@ import { Strategy as JwtStrategy } from "passport-jwt";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcrypt";
 import environment from "../env.config.js";
-import { User } from "../models/user.model.js";
+import { User } from "../../models/user.model.js";
 
 function cookieExtractor(req) {
   if (req && req.cookies && req.cookies.access_token) {
