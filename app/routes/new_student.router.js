@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireJwtCookie } from "../middleware/auth.middlewar.js";
+import { requireJwtCookie } from "../middleware/auth.middleware.js";
 import { policies } from '../middleware/policies.middleware.js';
 import { studentController as ctrl } from '../controllers/student.controller.js';
 

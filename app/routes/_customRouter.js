@@ -8,9 +8,9 @@ export default class CustomRouter {
         this.params = this.router.param.bind(this.router);
     }
 
-    _wrap(fn)  {
+    _wrap(fn) {
         if (typeof fn != 'function') return fn;
-        return function wrapped(req, res, next) {
+        return function wrapped(req,res,next) {
             try{
                 const r = fn(req, res, next);
                 if(r && typeof r.then === 'function') r.catch(next);
@@ -25,8 +25,9 @@ export default class CustomRouter {
     get(path, ...handlers) { this.router.get(path, ...handlers.map(h => this._wrap(h)));}
     post(path, ...handlers) { this.router.post(path, ...handlers.map(h => this._wrap(h)));}
     put(path, ...handlers) { this.router.put(path, ...handlers.map(h => this._wrap(h)));}
-    delete(path, ...handlers) { this.router.delete  (path, ...handlers.map(h => this._wrap(h)));}
+    delete(path, ...handlers) { this.router.delete(path, ...handlers.map(h => this._wrap(h)));}
 
+    // Helper para asegurar rutas con prefijo (subrouter)
     group(prefix, buildfn){
         const sub = new CustomRouter();
         buildfn(sub);

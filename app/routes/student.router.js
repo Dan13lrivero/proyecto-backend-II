@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { Student } from '../models/student.model.js';
 import mongoose from "mongoose";
-import { requireJwtCookie, requireRole } from "../middleware/auth.middlewar.js";
+import { requireJwtCookie, requireRole } from "../middleware/auth.middleware.js";
 
 
 const router = Router();
 
+// Aplicamos el Middleware de forma Global 
 router.use(requireJwtCookie);
 
 router.get('/', async (req, res) => {
@@ -26,9 +27,9 @@ router.post('/', requireRole('admin'), async (req, res) => {
 
         email = String(email).trim().toLowerCase();
         // chequeo rapido para validar si existe
-        const emailInUse = await Student.exists({email});
-        if(emailInUse){
-            return res.status(400).json({error: `El Email: ${email} ya esta en uso.!`});
+        const emailInUse = await Student.exists({ email });
+        if (emailInUse) {
+            return res.status(400).json({ error: `El Email: ${email} ya esta en uso.!` });
         }
 
         const student = new Student({ name, email, age });
@@ -40,7 +41,6 @@ router.post('/', requireRole('admin'), async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 })
-
 
 router.get('/:id', requireRole('admin', 'user'), async (req, res) => {
     try {
@@ -55,7 +55,7 @@ router.get('/:id', requireRole('admin', 'user'), async (req, res) => {
     }
 })
 
-router.put('/:id', requireRole('admin'), async (req, res) => {
+router.put('/:id', requireRole('admin'),  async (req, res) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: "Formato de ID invalido" });
@@ -70,7 +70,6 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 })
-
 
 router.delete('/:id', requireRole('admin'), async (req, res) => {
     try {

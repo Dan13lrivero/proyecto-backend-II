@@ -1,14 +1,14 @@
 import express from 'express';
 
 import authRouter from '../routes/auth.router.js';
-import homeRouter from '../routes/home.router.js';
-import studentRouter from '../routes/student.router.js';
-import newStudentRouter  from '../routes/new_student.router.js';
+import homeRouter from '../routes/home.router.js'
+import studentRouter from '../routes/student.router.js'
+import newStudentRouter from '../routes/new_student.router.js';
+import orderRouter from '../routes/order.router.js';
+
 import apiV1Router from '../routes/api.v1.router.js';
 import advancedRouter from '../routes/advancedRouter.js';
 import processRouter from '../routes/process.router.js';
-import usersRouter from '../routes/users.router.js';
-
 
 import environment, { validateEnv } from '../config/env.config.js';
 
@@ -22,8 +22,13 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import { initPassport } from '../config/auth/passport.config.js'
 
-const app = express();
+import { engine } from 'express-handlebars';
+import path from 'path';
+import { fileURLToPath  } from 'url';
+import { hbsHelpers } from './hbsHelpers.js';
 
+
+const app = express();
 
 const PORT = environment.PORT || 5000;
 
@@ -31,11 +36,15 @@ app.use(express.json());
 app.use(logger);
 app.use(cookieParser('clave_secreta'));
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const startServer = async () => {
 
+    // Validar la existencia de las variables de entorno
     validateEnv();
 
+    // Conexion a la Base de Datos
     await connectAuto();
 
     const store = MongoStore.create({
@@ -60,33 +69,47 @@ export const startServer = async () => {
     initPassport();
     app.use(passport.initialize());
 
+    // Rutas de Handlebars
+    app.engine('handlebars', engine({
+        defaultLayout: 'main',
+        layoutDir: path.join(__dirname, '../views/layouts'),
+        helpers: hbsHelpers,
+    }))
+    app.set('view engine', 'handlebars');
+    app.set('views', path.join(__dirname, '../views'));
+
     // Llamadas al enrutador
-    app.use('/api/sessions', authRouter);
-    app.use('/api/users', usersRouter);
+    app.use('/auth', authRouter);
     app.use('/', homeRouter);
     app.use('/student', studentRouter);
     app.use('/new-student', newStudentRouter);
 
+
+    // Enrutador de Ordenes
+    app.use('/', orderRouter);
+
+    // Agrupar Router versionados
     app.use('/api/v1', apiV1Router);
-    app.use ('/advanced', advancedRouter);
+    app.use('/advanced', advancedRouter);
     app.use('/process', processRouter);
 
     app.use((req, res) => {
-        res.status(404).json({ error: 'Página no encontrada'})
+        res.status(404).json({ error: 'Página No Encontrada.!' });
     });
 
+    // Manejo de señales y errores globales
     process.on('unhandledRejection', (reason) => {
         console.error('[process] Unhandled Rejection ', reason);
-    }); 
+    });
 
     process.on('uncaughtException', (err) => {
-        console.error('[process] Uncaught Exception', err);
+        console.error('[process] Uncaught Exception ', err);
     });
 
     process.on('SIGINT', () => {
         console.log('\n[process] SIGINT recibido. Cerrando...');
         process.exit(0);
-    })
+    });
 
     app.listen(PORT, () => console.log(`✅ Servidor escuchando en http://localhost:${PORT}`));
 };
