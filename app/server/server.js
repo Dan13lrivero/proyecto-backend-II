@@ -7,6 +7,8 @@ import newStudentRouter from '../routes/new_student.router.js';
 import orderRouter from '../routes/order.router.js';
 import messagingRouter from '../routes/messaging.router.js';
 import mailerRouter from '../routes/mailer.router.js';
+import cartRouter from '../routes/cart.router.js';
+import productRouter from '../routes/product.router.js';
 
 import apiV1Router from '../routes/api.v1.router.js';
 import advancedRouter from '../routes/advancedRouter.js';
@@ -91,6 +93,11 @@ export const startServer = async () => {
     app.use('/', orderRouter);
     app.use('/', messagingRouter);
     app.use('/', mailerRouter);
+
+    //enrutador de carrito y productos
+    app.use('/api/carts', cartRouter);
+    app.use('/api/products', productRouter);
+
 
 
     // Agrupar Router versionados

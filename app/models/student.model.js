@@ -4,18 +4,21 @@ const studentShema = new mongoose.Schema({
 
     name: {
         type: String,
-        require: true
+        required: true
     },
     email: {
         type: String,
-        require: true,
-        unique: true
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
     },
     age: {
         type: Number,
-        require: false
+        required: false,
+        min: 0
     },
 
-});
+}, {timestamps: true });
 
 export const Student = mongoose.model('Student', studentShema);
