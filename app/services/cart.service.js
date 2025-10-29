@@ -1,17 +1,18 @@
-import Cart from '../models/cart.model.js'; 
-import { Product } from '../models/product.model.js'; 
-import { Ticket } from '../models/ticket.model.js'; 
+import CartMongoDAO from "../dao/cart.mongo.dao.js";
 
 export class CartService {
+    constructor() {
+        this.dao = new CartMongoDAO();
+    }
+
     async createCart(userEmail) {
-        const cart = new Cart({ user: userEmail, items: [] });
-        await cart.save();
-        return cart;
+        return await this.dao.create(userEmail);
     }
 
     async getCartById(cid) {
-        const cart = await Cart.findById(cid).populate('items.product');
+        const cart = await this.dao.findById(cid);
         if (!cart) return null;
+
         return {
             _id: cart._id,
             user: cart.user,
@@ -26,70 +27,100 @@ export class CartService {
     }
 
     async addProduct(cid, pid, quantity) {
-        const cart = await Cart.findById(cid);
-        if (!cart) throw new Error('Carrito no encontrado');
+        const cart = await this.dao.findById(cid);
+        if (!cart) throw new Error("Carrito no encontrado");
         if (!cart.items) cart.items = [];
+
         const pidClean = pid.trim();
-        const existingItem = cart.items.find(i => i.product.toString() === pidClean);
+
+        
+        const existingItem = cart.items.find(i => {
+            const prodId = i.product._id ? i.product._id.toString() : i.product.toString();
+            return prodId === pidClean;
+        });
+
         if (existingItem) {
+            
             existingItem.qty += quantity;
         } else {
-            const product = await Product.findById(pidClean);
-            if (!product) throw new Error('Producto no encontrado');
+            const product = await this.dao.findProductById(pidClean);
+            if (!product) throw new Error("Producto no encontrado");
             cart.items.push({ product: product._id, qty: quantity });
         }
-        await cart.save();
+
+        await this.dao.save(cart);
         return this.getCartById(cid);
     }
 
     async updateProductQuantity(cid, pid, qty) {
-        const cart = await Cart.findById(cid);
-        if (!cart) throw new Error('Carrito no encontrado');
+        const cart = await this.dao.findById(cid);
+        if (!cart) throw new Error("Carrito no encontrado");
         if (!cart.items) cart.items = [];
+
         const pidClean = pid.trim();
-        const existingItem = cart.items.find(i => i.product.toString() === pidClean);
+
+        
+        const existingItem = cart.items.find(i => {
+            const prodId = i.product._id ? i.product._id.toString() : i.product.toString();
+            return prodId === pidClean;
+        });
+
         if (existingItem) {
             existingItem.qty = qty;
         } else {
-            const product = await Product.findById(pidClean);
-            if (!product) throw new Error('Producto no encontrado');
+            const product = await this.dao.findProductById(pidClean);
+            if (!product) throw new Error("Producto no encontrado");
             cart.items.push({ product: product._id, qty });
         }
-        await cart.save();
+
+        await this.dao.save(cart);
         return this.getCartById(cid);
     }
 
     async removeProduct(cid, pid) {
-        const cart = await Cart.findById(cid);
-        if (!cart) throw new Error('Carrito no encontrado');
+        const cart = await this.dao.findById(cid);
+        if (!cart) throw new Error("Carrito no encontrado");
         if (!cart.items) cart.items = [];
+
         const pidClean = pid.trim();
-        cart.items = cart.items.filter(i => i.product.toString() !== pidClean);
-        await cart.save();
+
+        
+        cart.items = cart.items.filter(i => {
+            const prodId = i.product._id ? i.product._id.toString() : i.product.toString();
+            return prodId !== pidClean;
+        });
+
+        await this.dao.save(cart);
         return this.getCartById(cid);
     }
 
     async purchaseCart(cid, userEmail) {
-        const cart = await Cart.findById(cid).populate('items.product');
-        if (!cart) throw new Error('Carrito no encontrado');
+        const cart = await this.dao.findById(cid);
+        if (!cart) throw new Error("Carrito no encontrado");
         if (!cart.items) cart.items = [];
 
         const purchasedItems = [];
         const remainingItems = [];
 
         for (const item of cart.items) {
-            const product = await Product.findById(item.product._id);
+            
+            const productId = item.product._id ? item.product._id : item.product;
+            const product = await this.dao.findProductById(productId);
+
             if (product && product.stock >= item.qty) {
                 product.stock -= item.qty;
-                await product.save();
-                purchasedItems.push(item);
+                await this.dao.updateProduct(product);
+                purchasedItems.push({
+                    product,
+                    qty: item.qty
+                });
             } else {
                 remainingItems.push({
                     product: {
-                        _id: item.product._id,
-                        title: item.product.title,
-                        price: item.product.price,
-                        stock: item.product.stock
+                        _id: product ? product._id : productId,
+                        title: product ? product.title : "Desconocido",
+                        price: product ? product.price : 0,
+                        stock: product ? product.stock : 0
                     },
                     requestedQty: item.qty,
                     availableStock: product ? product.stock : 0,
@@ -106,7 +137,7 @@ export class CartService {
                 0
             );
 
-            ticket = await Ticket.create({
+            ticket = await this.dao.createTicket({
                 code: `T-${Date.now()}`,
                 purchaser: userEmail,
                 amount: totalAmount,
@@ -119,8 +150,13 @@ export class CartService {
             });
         }
 
-        cart.items = remainingItems.map(i => ({ product: i.product._id, qty: i.requestedQty }));
-        await cart.save();
+        
+        cart.items = remainingItems.map(i => ({
+            product: i.product._id,
+            qty: i.requestedQty
+        }));
+
+        await this.dao.save(cart);
 
         return { ticket, remainingItems };
     }
