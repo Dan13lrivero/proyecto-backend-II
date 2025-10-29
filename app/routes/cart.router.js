@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { requireJwtCookie } from "../middleware/auth.middleware.js";
-import { cartService } from "../services/cart.service.js"; 
-import { Product } from "../models/product.model.js";
+import { cartService } from "../services/cart.service.js";
 
 const router = Router();
 
@@ -57,7 +56,7 @@ router.delete('/:cid/products/:pid', async (req, res) => {
 router.post('/:cid/purchase', async (req, res) => {
     const cid = req.params.cid.trim();
     try {
-        const { ticket, remainingItems } = await cartService.purchaseCart(cid, req.user.email);
+        const { ticket, order, remainingItems } = await cartService.purchaseCart(cid, req.user.email);
 
         const formattedNotPurchasable = remainingItems.map(i => ({
             product: i.product,
@@ -73,7 +72,7 @@ router.post('/:cid/purchase', async (req, res) => {
             });
         }
 
-        res.json({ ticket, notPurchasable: formattedNotPurchasable });
+        res.json({ ticket, order, notPurchasable: formattedNotPurchasable });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }

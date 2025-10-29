@@ -1,6 +1,7 @@
 import Cart from '../models/cart.model.js';
 import { Product } from '../models/product.model.js';
 import { Ticket } from '../models/ticket.model.js';
+import { Order } from '../models/order.model.js'; 
 
 export default class CartMongoDAO {
     async create(userEmail) {
@@ -26,5 +27,10 @@ export default class CartMongoDAO {
 
     async createTicket(ticketData) {
         return await Ticket.create(ticketData);
+    }
+
+    
+    async createOrder(orderData) {
+        return await Order.create(orderData);
     }
 }
