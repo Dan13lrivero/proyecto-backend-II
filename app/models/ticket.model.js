@@ -5,7 +5,7 @@ const ticketSchema = new mongoose.Schema({
     purchase_datetime: { type: Date, default: () => new Date(), required: true },
     amount: { type: Number, required: true, min: 0 },
     purchaser: { type: String, required: true },
-    products: { 
+    products: {
         type: [
             {
                 productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },

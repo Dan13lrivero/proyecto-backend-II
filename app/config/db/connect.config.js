@@ -31,6 +31,6 @@ export const connectMongoDBAltas = async () => {
 
 export const connectAuto = async () => {
     const target = (environment.MONGO_TARGET || "LOCAL").toUpperCase();
-    if(target === "ATLAS") return connectMongoDBAltas();
+    if (target === "ATLAS") return connectMongoDBAltas();
     return connectToMongoDB();
 }

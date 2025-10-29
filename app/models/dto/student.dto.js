@@ -1,12 +1,12 @@
-export function toCreateStudentDTO(body){
+export function toCreateStudentDTO(body) {
     const { name, email, age } = body ?? {};
-    if(!name || !email || typeof age !== 'number' ){
+    if (!name || !email || typeof age !== 'number') {
         throw new Error('Payload Incorrecto.!');
     }
     return { name, email, age };
 }
 
-export function toUpdateStudentDTO(body){
+export function toUpdateStudentDTO(body) {
     const out = {};
     if (body?.name) out.name = body.name;
     if (body?.email) out.email = body.email;

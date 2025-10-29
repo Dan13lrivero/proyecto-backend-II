@@ -19,6 +19,6 @@ const studentShema = new mongoose.Schema({
         min: 0
     },
 
-}, {timestamps: true });
+}, { timestamps: true });
 
 export const Student = mongoose.model('Student', studentShema);

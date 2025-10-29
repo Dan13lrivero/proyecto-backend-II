@@ -28,7 +28,7 @@ import { initPassport } from '../config/auth/passport.config.js'
 
 import { engine } from 'express-handlebars';
 import path from 'path';
-import { fileURLToPath  } from 'url';
+import { fileURLToPath } from 'url';
 import { hbsHelpers } from './hbsHelpers.js';
 
 
@@ -45,10 +45,10 @@ const __dirname = path.dirname(__filename);
 
 export const startServer = async () => {
 
-    // Validar la existencia de las variables de entorno
+
     validateEnv();
 
-    // Conexion a la Base de Datos
+
     await connectAuto();
 
     const store = MongoStore.create({
@@ -63,9 +63,8 @@ export const startServer = async () => {
             saveUninitialized: false,
             store,
             cookie: {
-                maxAge: 1 * 60 * 60 * 1000, // 1hr
+                maxAge: 1 * 60 * 60 * 1000,
                 httpOnly: true,
-                // signed: true,
             },
         })
     );
@@ -109,7 +108,6 @@ export const startServer = async () => {
         res.status(404).json({ error: 'Página No Encontrada.!' });
     });
 
-    // Manejo de señales y errores globales
     process.on('unhandledRejection', (reason) => {
         console.error('[process] Unhandled Rejection ', reason);
     });

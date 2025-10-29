@@ -4,7 +4,7 @@ import studentRouter from './student.router.js';
 import authRouter from './auth.router.js';
 
 
-const router = Router({mergeParams: true});
+const router = Router({ mergeParams: true });
 
 router.use('/', homeRouter);
 router.use('/auth', authRouter);

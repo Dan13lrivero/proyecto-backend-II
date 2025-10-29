@@ -17,17 +17,17 @@ const {
 } = process.env;
 
 function buildTransport() {
-    if(!SMTP_HOST) throw new Error("Host no definido!!");
+    if (!SMTP_HOST) throw new Error("Host no definido!!");
     return nodemailer.createTransport({
         host: SMTP_HOST,
         port: Number(SMTP_PORT || 587),
         secure: String(SMTP_SECURE || "false") === "true",
-        auth: { user: SMTP_USER, pass: SMTP_PASS},
+        auth: { user: SMTP_USER, pass: SMTP_PASS },
     });
 }
 
 
-async function renderTemplate(templateName, data){
+async function renderTemplate(templateName, data) {
     const viewDir = path.join(__dirname, '../views/emails');
     const filePath = path.join(viewDir, `${templateName}.handlebars`);
     const source = await fs.readFile(filePath, 'utf-8');
@@ -36,8 +36,8 @@ async function renderTemplate(templateName, data){
 }
 
 export class MailerService {
-    async send({to, subject, template, context = {}}){
-        if(!to || !subject || !template) throw new Error("Faltan campos obligatorios");
+    async send({ to, subject, template, context = {} }) {
+        if (!to || !subject || !template) throw new Error("Faltan campos obligatorios");
         const transport = buildTransport();
         const html = await renderTemplate(template, context);
         const info = await transport.sendMail({

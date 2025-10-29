@@ -13,11 +13,11 @@ const env = {
 
 export function validateEnv() {
     const missing = [];
-    if(!env.SESSION_SECRET) missing.push('SESSION_SECRET');
-    if(!env.JWT_SECRET) missing.push('JWT_SECRET');
-    if(env.MONGO_TARGET === 'LOCAL' && !env.MONGO_URI) missing.push('MONGO_URI');
-    if(env.MONGO_TARGET === 'ATLAS' && !env.MONGO_URI_ATLAS) missing.push('MONGO_URI_ATLAS');
-    if(missing.length){
+    if (!env.SESSION_SECRET) missing.push('SESSION_SECRET');
+    if (!env.JWT_SECRET) missing.push('JWT_SECRET');
+    if (env.MONGO_TARGET === 'LOCAL' && !env.MONGO_URI) missing.push('MONGO_URI');
+    if (env.MONGO_TARGET === 'ATLAS' && !env.MONGO_URI_ATLAS) missing.push('MONGO_URI_ATLAS');
+    if (missing.length) {
         console.error('[ENV] Faltan variables de entorno: ', missing.join(', '));
     }
 }
@@ -26,7 +26,7 @@ export function getPublicEnv() {
     return {
         NODE_ENV: env.NODE_ENV,
         PORT: env.PORT,
-        MONGO_TARGET: env.MONGO_TARGET 
+        MONGO_TARGET: env.MONGO_TARGET
     }
 }
 
